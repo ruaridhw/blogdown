@@ -126,14 +126,17 @@ new_site = function(
 #' @export
 install_theme = function(theme, theme_example = FALSE, update_config = TRUE) {
   if (!is.character(theme) || length(theme) != 1 || !grepl('^[^/]+/[^/]+$', theme)) {
-    warning("'theme' must be a character string of the form 'user/repo'")
+    warning("'theme' must be a character string of the form 'user/repo[@ref]'")
     return(invisible())
   }
+  re <- "^([^@])(@.*)?$"
+  theme <- sub(re,"\\1",theme)
+  ref <- sub(re,"\\2",theme)
   dir_create('themes')
   in_dir('themes', {
     zipfile = sprintf('%s.zip', basename(theme))
     download2(
-      sprintf('https://github.com/%s/archive/master.zip', theme), zipfile, mode = 'wb'
+      sprintf('https://github.com/%s/archive/%s.zip', theme, ref), zipfile, mode = 'wb'
     )
     files = utils::unzip(zipfile)
     zipdir = dirname(files[1])
